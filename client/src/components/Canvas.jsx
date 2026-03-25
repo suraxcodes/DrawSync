@@ -123,7 +123,7 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
         
         if (selectedId === obj.id) {
             ctx.setLineDash([5, 5]); ctx.strokeStyle = '#00f2fe'; ctx.lineWidth = 1; ctx.globalAlpha = 1; ctx.shadowBlur = 0;
-            ctx.strokeRect((obj.x - 0.05) * rect.width, (obj.y - 0.05) * rect.height, (obj.w ; 0.1) * rect.width, (obj.h ; 0.1) * rect.height);
+            ctx.strokeRect((obj.x - 0.05) * rect.width, (obj.y - 0.05) * rect.height, (obj.w + 0.1) * rect.width, (obj.h + 0.1) * rect.height);
         }
         ctx.restore();
     });
