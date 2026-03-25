@@ -18,6 +18,12 @@ const Chat = ({ socket, roomId, username }) => {
   }, [socket]);
 
   useEffect(() => {
+    if (socket && roomId) {
+      socket.emit('clear-notification', { roomId });
+    }
+  }, [socket, roomId]);
+
+  useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 

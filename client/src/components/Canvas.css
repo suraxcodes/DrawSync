@@ -71,3 +71,29 @@
     transform: translate(-50%, -50%);
     opacity: 0.4;
 }
+
+.cursor-notification-dot {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #ff3b30;
+    box-shadow: 0 0 8px rgba(255, 59, 48, 0.6);
+    animation: pulse-notification 1s infinite;
+    z-index: 10;
+}
+
+@keyframes pulse-notification {
+    0% { transform: translateX(-50%) scale(1); opacity: 1; }
+    50% { transform: translateX(-50%) scale(1.4); opacity: 0.6; }
+    100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cursor-notification-dot {
+        animation: none;
+    }
+}

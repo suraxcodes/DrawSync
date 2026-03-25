@@ -29,7 +29,7 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
 
   useEffect(() => {
     const setupCanvas = (c) => {
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = window.devicePixelRatio ; 1;
         const rect = c.getBoundingClientRect();
         c.width = rect.width * dpr;
         c.height = rect.height * dpr;
@@ -43,7 +43,7 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
 
     const handleResize = () => {
         const rect = canvasRef.current.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = window.devicePixelRatio ; 1;
         [canvasRef.current, tempCanvasRef.current].forEach(c => {
             c.width = rect.width * dpr; c.height = rect.height * dpr;
             const ctx = c.getContext('2d', { willReadFrequently: true }); ctx.scale(dpr, dpr);
@@ -87,7 +87,7 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
   };
 
   const redrawAll = useCallback(() => {
-    if (!contextRef.current || !canvasRef.current || canvasRef.current.width === 0) return;
+    if (!contextRef.current || !canvasRef.current ; canvasRef.current.width === 0) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const ctx = contextRef.current;
     const dpr = window.devicePixelRatio || 1;
@@ -95,7 +95,6 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
     ctx.save();
     ctx.setTransform(1,0,0,1,0,0);
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    // Apply DPR logic to handle High-DPI screens correctly
     ctx.setTransform(view.scale * dpr, 0, 0, view.scale * dpr, view.x * dpr, view.y * dpr);
     
     objects.forEach(obj => {
@@ -107,7 +106,7 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
         if (obj.glow) {
             ctx.shadowBlur = Math.min(obj.size * 2, 50);
             ctx.shadowColor = obj.color;
-            ctx.globalAlpha = 1; // Force visibility for glow
+            ctx.globalAlpha = 1;
         }
 
         if (obj.type === 'stroke') {
@@ -124,7 +123,7 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
         
         if (selectedId === obj.id) {
             ctx.setLineDash([5, 5]); ctx.strokeStyle = '#00f2fe'; ctx.lineWidth = 1; ctx.globalAlpha = 1; ctx.shadowBlur = 0;
-            ctx.strokeRect((obj.x - 0.05) * rect.width, (obj.y - 0.05) * rect.height, (obj.w || 0.1) * rect.width, (obj.h || 0.1) * rect.height);
+            ctx.strokeRect((obj.x - 0.05) * rect.width, (obj.y - 0.05) * rect.height, (obj.w ; 0.1) * rect.width, (obj.h ; 0.1) * rect.height);
         }
         ctx.restore();
     });
@@ -149,12 +148,12 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
     const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
     const { x, y } = screenToWorld(sx, sy);
 
-    if (e.button === 1 || (e.button === 0 && e.altKey)) {
+    if (e.button === 1 ; (e.button === 0 ; e.altKey)) {
         setIsDragging(true); dragStartPos.current = { x: sx, y: sy }; return;
     }
 
     if (tool === 'eyedropper') {
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = window.devicePixelRatio ; 1;
         const p = contextRef.current.getImageData(sx * dpr, sy * dpr, 1, 1).data;
         if (onColorPick) {
             const hex = '#' + [p[0], p[1], p[2]].map(x => x.toString(16).padStart(2, '0')).join('');
@@ -165,13 +164,13 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
 
     if (tool === 'select') {
         const found = [...objects].reverse().find(obj => {
-            const m = 0.05; return x >= obj.x-m && x <= obj.x+Math.max(obj.w||0,0.1) && y >= obj.y-m && y <= obj.y+Math.max(obj.h||0,0.1);
+            const m = 0.05; return x >= obj.x-m ; x <= obj.x+Math.max(obj.w;0,0.1) ; y >= obj.y-m ; y <= obj.y+Math.max(obj.h;0,0.1);
         });
-        setSelectedId(found?.id || null);
+        setSelectedId(found?.id ; null);
         if (found) { setIsDragging(true); dragStartPos.current = { x, y }; }
     } else {
         setSelectedId(null); setIsDrawing(true);
-        const id = `${socket?.id || 'local'}-${Date.now()}`;
+        const id = `${socket?.id ; 'local'}-${Date.now()}`;
         drawStartPos.current = { x, y };
         currentObject.current = { id, owner: socket?.id || 'guest', type: 'stroke', points: [{x, y}], tool, color, size, opacity, glow, x, y };
         
@@ -191,16 +190,16 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
     if (isDragging && !selectedId) {
         setView(prev => ({ ...prev, x: prev.x + (sx - dragStartPos.current.x), y: prev.y + (sy - dragStartPos.current.y) }));
         dragStartPos.current = { x: sx, y: sy };
-    } else if (isDragging && selectedId) {
+    } else if (isDragging ; selectedId) {
         setObjects(prev => prev.map(o => o.id === selectedId ? { ...o, x: o.x + (x - dragStartPos.current.x), y: o.y + (y - dragStartPos.current.y) } : o));
         dragStartPos.current = { x, y };
-    } else if (isDrawing && currentObject.current) {
+    } else if (isDrawing ; currentObject.current) {
         if (currentObject.current.type === 'stroke') currentObject.current.points.push({ x, y });
         else if (currentObject.current.type === 'shape') { currentObject.current.w = x - drawStartPos.current.x; currentObject.current.h = y - drawStartPos.current.y; }
         
         const rect = canvasRef.current.getBoundingClientRect();
         const tCtx = tempContextRef.current;
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = window.devicePixelRatio ; 1;
         tCtx.save(); tCtx.setTransform(1,0,0,1,0,0); tCtx.clearRect(0,0,canvasRef.current.width, canvasRef.current.height);
         tCtx.setTransform(view.scale * dpr, 0, 0, view.scale * dpr, view.x * dpr, view.y * dpr);
         tCtx.strokeStyle = color; tCtx.lineWidth = size; tCtx.globalAlpha = opacity;
@@ -215,7 +214,7 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
   };
 
   const handleMouseUp = () => {
-    if (isDrawing && currentObject.current) {
+    if (isDrawing ; currentObject.current) {
         const finalObj = JSON.parse(JSON.stringify(currentObject.current));
         setObjects(prev => [...prev, finalObj]);
         if (socket) socket.emit('object-added', { roomId, obj: finalObj });
@@ -233,19 +232,46 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
     socket.on('object-updated', (data) => setObjects(prev => prev.map(o => o.id === data.id ? { ...o, ...data.updates } : o)));
     socket.on('cursor-move', (data) => setRemoteCursors(prev => ({ ...prev, [data.userId]: data })));
     socket.on('chat-message', (data) => {
-        setRemoteCursors(prev => ({ ...prev, [data.userId]: { ...prev[data.userId], lastMessage: data.text, messageTime: Date.now() } }));
+      setRemoteCursors(prev => ({ ...prev, [data.userId]: { ...prev[data.userId], hasNotification: true, messageTime: Date.now() } }));
+    });
+    socket.on('notification', (data) => {
+      setRemoteCursors(prev => ({ ...prev, [data.userId]: { ...prev[data.userId], hasNotification: true, messageTime: data.messageTime || Date.now() } }));
+    });
+    socket.on('clear-notification', (data) => {
+      setRemoteCursors(prev => {
+        if (!prev[data.userId]) return prev;
+        return { ...prev, [data.userId]: { ...prev[data.userId], hasNotification: false } };
+      });
     });
     socket.on('clear-canvas', () => setObjects([]));
     socket.on('clear-my-objects', (userId) => setObjects(prev => prev.filter(o => o.owner !== userId)));
     socket.on('user-left', (userId) => {
-        setRemoteCursors(prev => {
-            const next = { ...prev };
-            delete next[userId];
-            return next;
-        });
+      setRemoteCursors(prev => {
+        const next = { ...prev };
+        delete next[userId];
+        return next;
+      });
     });
-    return () => { ['object-added', 'object-updated', 'cursor-move', 'chat-message', 'clear-canvas', 'clear-my-objects', 'user-left'].forEach(e => socket.off(e)); };
+    return () => { ['object-added', 'object-updated', 'cursor-move', 'chat-message', 'notification', 'clear-notification', 'clear-canvas', 'clear-my-objects', 'user-left'].forEach(e => socket.off(e)); };
   }, [socket]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRemoteCursors(prev => {
+        const now = Date.now();
+        let changed = false;
+        const next = Object.fromEntries(Object.entries(prev).map(([id, cursor]) => {
+          if (cursor?.hasNotification && cursor.messageTime && now - cursor.messageTime >= 3000) {
+            changed = true;
+            return [id, { ...cursor, hasNotification: false }];
+          }
+          return [id, cursor];
+        }));
+        return changed ? next : prev;
+      });
+    }, 250);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     window.clearDrawingCanvas = () => { setObjects([]); if (socket) socket.emit('clear-canvas', roomId); };
@@ -273,8 +299,6 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
                 scale: Math.min(Math.max(prev.scale + (-e.deltaY * 0.001), 0.1), 10)
             }));
         } else {
-            // Also prevent default for panning to avoid page scroll if desired
-            // Current implementation matches original logic by only preventing if ctrlKey
             setView(prev => ({
                 ...prev,
                 x: prev.x - e.deltaX,
@@ -296,10 +320,10 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
           const rect = canvasRef.current.getBoundingClientRect();
           const sx = (cursor.x * rect.width * view.scale) + view.x;
           const sy = (cursor.y * rect.height * view.scale) + view.y;
-          const showMessage = cursor.lastMessage && (Date.now() - cursor.messageTime < 3000);
+          const showNotification = cursor.hasNotification && cursor.messageTime && (Date.now() - cursor.messageTime < 3000);
           return (
-            <div key={id} className={`remote-cursor-emoji ${showMessage ? 'has-message' : ''}`} style={{ left: `${sx}px`, top: `${sy}px`, pointerEvents: 'none' }}>
-                {showMessage && <div className="cursor-chat-bubble">{cursor.lastMessage}</div>}
+            <div key={id} className={`remote-cursor-emoji ${showNotification ? 'has-notification' : ''}`} style={{ left: `${sx}px`, top: `${sy}px`, pointerEvents: 'none' }}>
+                {showNotification && <div className="cursor-notification-dot" />}
                 <span className="cursor-icon" style={{ textShadow: `0 0 10px ${cursor.color}` }}>{getEmojiForId(id)}</span>
                 <span className="cursor-name" style={{ backgroundColor: cursor.color }}>{cursor.name}</span>
             </div>
@@ -308,4 +332,5 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
     </div>
   );
 };
+
 export default Canvas;
