@@ -35,24 +35,9 @@ export const useSocket = (roomId, username) => {
         });
     }
 
-    // Handle room switching separately
-    if (socketRef.current && roomId && username) {
-        setIsInRoom(false); // Reset to false until confirmed
-        if (socketRef.current.connected) {
-            socketRef.current.emit('join-room', { roomId, username });
-        } else {
-            // Wait for connection to join
-            const joinOnConnect = () => {
-                socketRef.current.emit('join-room', { roomId, username });
-                socketRef.current.off('connect', joinOnConnect);
-            };
-            socketRef.current.on('connect', joinOnConnect);
-        }
-    }
-
-    // Cleanup on unmount or roomId change?
-    // Actually, we don't want to disconnect it every time roomId changes.
-    // We just want to 'emit' the join.
+    // Only join room on explicit action (form submission via handleJoinByCode)
+    // Don't auto-join on every character typed in the input field
+    // Parent component (App.jsx) controls when join happens via setCurrentRoom()
   }, [roomId, username]);
 
   return { socket: socketRef.current, isConnected, isInRoom };

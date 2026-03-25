@@ -84,7 +84,10 @@ function App() {
         const clean = roomId.trim().toUpperCase();
         setCurrentRoom(clean);
         setRoomId(clean);
-        // Don't set inRoom here - wait for socket confirmation via isInRoom
+        // Emit join-room explicitly on form submission only
+        if (socket) {
+            socket.emit('join-room', { roomId: clean, username: username.trim() });
+        }
     }
   };
 
@@ -118,7 +121,7 @@ function App() {
                 <form onSubmit={handleJoinByCode} className="room-form">
                     <input type="text" placeholder="Room ID" value={roomId} onChange={(e) => setRoomId(e.target.value)} />
                     <button type="submit" className="join-btn" disabled={!username.trim()}>Join Room</button>
-                    <button type="button" onClick={() => { const code = Math.random().toString(36).substring(2,8).toUpperCase(); setCurrentRoom(code); setRoomId(code); }} className="create-btn" disabled={!username.trim()}>Create Studio</button>
+                    <button type="button" onClick={() => { const code = Math.random().toString(36).substring(2,8).toUpperCase(); setCurrentRoom(code); setRoomId(code); if (socket) socket.emit('join-room', { roomId: code, username: username.trim() }); }} className="create-btn" disabled={!username.trim()}>Create Studio</button>
                 </form>
             </div>
         </div>
