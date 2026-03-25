@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import throttle from 'lodash.throttle';
 import './Canvas.css';
-
+//ncvnscn
 const CURSOR_EMOJIS = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵'];
 
 const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, onColorPick }) => {
