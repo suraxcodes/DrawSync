@@ -87,7 +87,7 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
   };
 
   const redrawAll = useCallback(() => {
-    if (!contextRef.current || !canvasRef.current ; canvasRef.current.width === 0) return;
+    if (!contextRef.current || !canvasRef.current || canvasRef.current.width === 0) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const ctx = contextRef.current;
     const dpr = window.devicePixelRatio || 1;
