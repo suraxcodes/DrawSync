@@ -19,10 +19,16 @@ const gameRooms = {}; // Store game state per room
 io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`);
 
-  // Join a specific room
-  socket.on('join-room', (roomId) => {
+  // Join a specific room with username
+  socket.on('join-room', (data) => {
+    const { roomId, username } = data;
+    socket.username = username;
     socket.join(roomId);
-    console.log(`User ${socket.id} joined room: ${roomId}`);
+    console.log(`User ${socket.id} (${username}) joined room: ${roomId}`);
+    // Send confirmation back to client
+    socket.emit('room-joined', { roomId, username });
+    // Notify other users in room that someone joined
+    socket.to(roomId).emit('user-joined', { userId: socket.id, username });
   });
 
 

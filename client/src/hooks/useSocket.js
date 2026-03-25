@@ -3,9 +3,10 @@ import { io } from 'socket.io-client';
 
 const URL = 'http://localhost:3001';
 
-export const useSocket = (roomId) => {
+export const useSocket = (roomId, username) => {
   const socketRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isInRoom, setIsInRoom] = useState(false);
 
   useEffect(() => {
     // Only initialize socket once
@@ -23,18 +24,26 @@ export const useSocket = (roomId) => {
 
         socketRef.current.on('disconnect', () => {
             setIsConnected(false);
+            setIsInRoom(false);
             console.log('Disconnected from socket server');
+        });
+
+        // Listen for room join confirmation from server
+        socketRef.current.on('room-joined', (data) => {
+            console.log('Successfully joined room:', data.roomId);
+            setIsInRoom(true);
         });
     }
 
     // Handle room switching separately
-    if (socketRef.current && roomId) {
+    if (socketRef.current && roomId && username) {
+        setIsInRoom(false); // Reset to false until confirmed
         if (socketRef.current.connected) {
-            socketRef.current.emit('join-room', roomId);
+            socketRef.current.emit('join-room', { roomId, username });
         } else {
             // Wait for connection to join
             const joinOnConnect = () => {
-                socketRef.current.emit('join-room', roomId);
+                socketRef.current.emit('join-room', { roomId, username });
                 socketRef.current.off('connect', joinOnConnect);
             };
             socketRef.current.on('connect', joinOnConnect);
@@ -44,7 +53,7 @@ export const useSocket = (roomId) => {
     // Cleanup on unmount or roomId change?
     // Actually, we don't want to disconnect it every time roomId changes.
     // We just want to 'emit' the join.
-  }, [roomId]);
+  }, [roomId, username]);
 
-  return { socket: socketRef.current, isConnected };
+  return { socket: socketRef.current, isConnected, isInRoom };
 };

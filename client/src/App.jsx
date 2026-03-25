@@ -46,13 +46,12 @@ function App() {
   const [historyPointer, setHistoryPointer] = useState(-1);
   const [roomId, setRoomId] = useState('');
   const [username, setUsername] = useState('');
-  const [inRoom, setInRoom] = useState(false);
   const [currentRoom, setCurrentRoom] = useState('Global');
   const [background, setBackground] = useState('none');
   const [gameState, setGameState] = useState({ active: false, drawer: null, word: '', winner: null });
   const [timeLeft, setTimeLeft] = useState(0);
 
-  const { socket, isConnected } = useSocket(currentRoom);
+  const { socket, isConnected, isInRoom } = useSocket(currentRoom, username);
 
   useEffect(() => {
     let interval;
@@ -83,7 +82,9 @@ function App() {
     e.preventDefault();
     if (roomId.trim() && username.trim()) {
         const clean = roomId.trim().toUpperCase();
-        setCurrentRoom(clean); setRoomId(clean); setInRoom(true);
+        setCurrentRoom(clean);
+        setRoomId(clean);
+        // Don't set inRoom here - wait for socket confirmation via isInRoom
     }
   };
 
@@ -108,7 +109,7 @@ function App() {
 
   return (
     <div className="App">
-      {!inRoom ? (
+      {!isInRoom ? (
         <div className="room-setup-overlay">
             <div className="room-card">
                 <h1 className="logo large">DrawSync</h1>
@@ -117,7 +118,7 @@ function App() {
                 <form onSubmit={handleJoinByCode} className="room-form">
                     <input type="text" placeholder="Room ID" value={roomId} onChange={(e) => setRoomId(e.target.value)} />
                     <button type="submit" className="join-btn" disabled={!username.trim()}>Join Room</button>
-                    <button type="button" onClick={() => { const code = Math.random().toString(36).substring(2,8).toUpperCase(); setCurrentRoom(code); setRoomId(code); setInRoom(true); }} className="create-btn" disabled={!username.trim()}>Create Studio</button>
+                    <button type="button" onClick={() => { const code = Math.random().toString(36).substring(2,8).toUpperCase(); setCurrentRoom(code); setRoomId(code); }} className="create-btn" disabled={!username.trim()}>Create Studio</button>
                 </form>
             </div>
         </div>
@@ -126,7 +127,7 @@ function App() {
           <div className="toolbar">
             <div className="toolbar-left">
                 <h1 className="logo">DrawSync</h1>
-                <div className="room-badge">{currentRoom} <button className="leave-room" onClick={() => setInRoom(false)}>&times;</button></div>
+                <div className="room-badge">{currentRoom} <button className="leave-room" onClick={() => { setCurrentRoom('Global'); setRoomId(''); setUsername(''); }}>×</button></div>
             </div>
 
             <div className="tool-group">
