@@ -125,7 +125,7 @@ io.on('connection', (socket) => {
   })
 })
 
-const PORT = process.env.PORT || 3002
+const PORT = process.env.PORT || 3003
 httpServer.listen(PORT, () => {
   console.log(`Socket.io server running on http://localhost:${PORT}`)
 })
