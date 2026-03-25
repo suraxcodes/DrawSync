@@ -29,7 +29,7 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
 
   useEffect(() => {
     const setupCanvas = (c) => {
-        const dpr = window.devicePixelRatio ; 1;
+        const dpr = window.devicePixelRatio || 1;
         const rect = c.getBoundingClientRect();
         c.width = rect.width * dpr;
         c.height = rect.height * dpr;
@@ -43,7 +43,7 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
 
     const handleResize = () => {
         const rect = canvasRef.current.getBoundingClientRect();
-        const dpr = window.devicePixelRatio ; 1;
+        const dpr = window.devicePixelRatio || 1;
         [canvasRef.current, tempCanvasRef.current].forEach(c => {
             c.width = rect.width * dpr; c.height = rect.height * dpr;
             const ctx = c.getContext('2d', { willReadFrequently: true }); ctx.scale(dpr, dpr);
@@ -148,7 +148,7 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
     const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
     const { x, y } = screenToWorld(sx, sy);
 
-    if (e.button === 1 ; (e.button === 0 ; e.altKey)) {
+    if (e.button === 1 || (e.button === 0 && e.altKey)) {
         setIsDragging(true); dragStartPos.current = { x: sx, y: sy }; return;
     }
 
@@ -164,13 +164,13 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
 
     if (tool === 'select') {
         const found = [...objects].reverse().find(obj => {
-            const m = 0.05; return x >= obj.x-m ; x <= obj.x+Math.max(obj.w;0,0.1) ; y >= obj.y-m ; y <= obj.y+Math.max(obj.h;0,0.1);
+            const m = 0.05; return x >= obj.x-m && x <= obj.x+Math.max(obj.w||0,0.1) && y >= obj.y-m && y <= obj.y+Math.max(obj.h||0,0.1);
         });
-        setSelectedId(found?.id ; null);
+        setSelectedId(found?.id || null);
         if (found) { setIsDragging(true); dragStartPos.current = { x, y }; }
     } else {
         setSelectedId(null); setIsDrawing(true);
-        const id = `${socket?.id ; 'local'}-${Date.now()}`;
+        const id = `${socket?.id || 'local'}-${Date.now()}`;
         drawStartPos.current = { x, y };
         currentObject.current = { id, owner: socket?.id || 'guest', type: 'stroke', points: [{x, y}], tool, color, size, opacity, glow, x, y };
         
@@ -190,16 +190,16 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
     if (isDragging && !selectedId) {
         setView(prev => ({ ...prev, x: prev.x + (sx - dragStartPos.current.x), y: prev.y + (sy - dragStartPos.current.y) }));
         dragStartPos.current = { x: sx, y: sy };
-    } else if (isDragging ; selectedId) {
+    } else if (isDragging && selectedId) {
         setObjects(prev => prev.map(o => o.id === selectedId ? { ...o, x: o.x + (x - dragStartPos.current.x), y: o.y + (y - dragStartPos.current.y) } : o));
         dragStartPos.current = { x, y };
-    } else if (isDrawing ; currentObject.current) {
+    } else if (isDrawing && currentObject.current) {
         if (currentObject.current.type === 'stroke') currentObject.current.points.push({ x, y });
         else if (currentObject.current.type === 'shape') { currentObject.current.w = x - drawStartPos.current.x; currentObject.current.h = y - drawStartPos.current.y; }
         
         const rect = canvasRef.current.getBoundingClientRect();
         const tCtx = tempContextRef.current;
-        const dpr = window.devicePixelRatio ; 1;
+        const dpr = window.devicePixelRatio || 1;
         tCtx.save(); tCtx.setTransform(1,0,0,1,0,0); tCtx.clearRect(0,0,canvasRef.current.width, canvasRef.current.height);
         tCtx.setTransform(view.scale * dpr, 0, 0, view.scale * dpr, view.x * dpr, view.y * dpr);
         tCtx.strokeStyle = color; tCtx.lineWidth = size; tCtx.globalAlpha = opacity;
@@ -214,7 +214,7 @@ const Canvas = ({ tool, color, size, opacity, glow, socket, roomId, username, on
   };
 
   const handleMouseUp = () => {
-    if (isDrawing ; currentObject.current) {
+    if (isDrawing && currentObject.current) {
         const finalObj = JSON.parse(JSON.stringify(currentObject.current));
         setObjects(prev => [...prev, finalObj]);
         if (socket) socket.emit('object-added', { roomId, obj: finalObj });
