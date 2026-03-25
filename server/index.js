@@ -6,6 +6,11 @@ import cors from 'cors'
 const app = express()
 app.use(cors())
 
+// Basic route to prevent 404 errors
+app.get('/', (req, res) => {
+  res.json({ message: 'Socket.io server is running' })
+})
+
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
   cors: {
